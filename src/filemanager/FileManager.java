@@ -2,6 +2,7 @@ package filemanager;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -12,16 +13,37 @@ import java.util.Scanner;
  * @author Aldo Escobar
  */
 public class FileManager {
+    //public static String expensivePath = "\\\\PC3-PC\\Users\\Public\\Files\\Expensive";
+    public static String expensivePath = "\\\\LSO-25-PC\\Users\\Public\\Files\\Expensive";
+    //public static String expensivePath = "Expensive";
+   
+    private static void addClient(String id, String clientName) throws IOException{
+        BufferedWriter clientWriter = new BufferedWriter(new FileWriter("Clients", true));
+        clientWriter.write(id + " " + clientName); clientWriter.newLine();
+        clientWriter.close();
+    }
     
-    private static String search(String product) throws IOException{        
-        String expensivePath = "\\\\PC3-PC\\Users\\Public\\Files\\Expensive";
+    private static void sell(String clientId, String productId, float chantity) throws IOException{
+        System.out.println("Debug: Empezando Venta");
+        boolean clientFlag = searchClientById(clientId);
+        boolean productFlag = searchProductById(productId);
+        if(clientFlag && productFlag){            
+            BufferedWriter sellWriter = new BufferedWriter(new FileWriter("Sells", true));
+            sellWriter.write(clientId + " " + productId + " " + chantity); sellWriter.newLine();
+            sellWriter.close();
+            System.out.println("Succes sale");
+        }        
+    }   
+    
+    private static String search(String product) throws IOException{                   
+       
         // CHEAP FILE
         BufferedReader readCheap = new BufferedReader(new FileReader("Cheap"));
         String line = readCheap.readLine();
         String[] lineFragments;
         while(line != null){
             lineFragments = line.split(" ");
-            if (lineFragments[0].equalsIgnoreCase(product)){
+            if (lineFragments[1].equalsIgnoreCase(product)){
                 readCheap.close();
                 System.out.println("Found it in cheap");
                 return "Cheap";            
@@ -34,8 +56,8 @@ public class FileManager {
         BufferedReader readExpensive = new BufferedReader(new FileReader(expensivePath));        
         line = readExpensive.readLine();
         while(line != null){
-            lineFragments = line.split(" ");
-            if (lineFragments[0].equalsIgnoreCase(product)){
+            lineFragments = line.split(" ");            
+            if (lineFragments[1].equalsIgnoreCase(product)){
                 readExpensive.close();
                 System.out.println("Found it in expensive");
                 return expensivePath;
@@ -43,11 +65,61 @@ public class FileManager {
             line = readExpensive.readLine();
         }
         readExpensive.close();
-        
-        System.out.println("I'm searching: " + product);
-        return null;
+                
+        System.err.println("Product not found"); return null;
         
     } // End Search
+    
+    private static boolean searchProductById(String productId) throws IOException{
+        // CHEAP FILE
+        BufferedReader readCheap = new BufferedReader(new FileReader("Cheap"));
+        String line = readCheap.readLine();
+        String[] lineFragments;
+        while(line != null){
+            lineFragments = line.split(" ");
+            if (lineFragments[0].equalsIgnoreCase(productId)){
+                readCheap.close();
+                System.out.println("Found product" + productId +  "in cheap");
+                return true;            
+            } 
+            line = readCheap.readLine();
+        }
+        readCheap.close();
+        
+        // EXPENSIVE FILE
+        BufferedReader readExpensive = new BufferedReader(new FileReader(expensivePath));        
+        line = readExpensive.readLine();
+        while(line != null){
+            lineFragments = line.split(" ");            
+            if (lineFragments[0].equalsIgnoreCase(productId)){
+                readExpensive.close();
+                System.out.println("Found product" + productId +  "in Expensive");
+                return true;
+            } 
+            line = readExpensive.readLine();
+        }
+        readExpensive.close();
+                
+        System.err.println("Product not found"); return false;
+        
+    } // END searchById
+    
+    private static boolean searchClientById(String clientId) throws IOException{
+        BufferedReader readClients = new BufferedReader(new FileReader("Clients"));
+        String line = readClients.readLine();
+        String[] lineFragments;
+        while(line != null){
+            lineFragments = line.split(" ");
+            if (lineFragments[0].equalsIgnoreCase(clientId)){
+                readClients.close();
+                System.out.println("Found client " + clientId + " " +  lineFragments[1]);
+                return true;            
+            } 
+            line = readClients.readLine();
+        }
+        readClients.close();
+        System.err.println("Client not found"); return false;
+    } // END searchClientById
     
     private static void modify(String product, float newPrice) throws IOException{
         String whereIs = search(product);
@@ -76,7 +148,7 @@ public class FileManager {
     } // END Modify
     
     private static void tmpExchange(String whereIs, float newPrice) throws IOException{
-        String expensivePath = "\\\\PC3-PC\\Users\\Public\\Files\\Expensive";
+        //String expensivePath = "\\\\PC3-PC\\Users\\Public\\Files\\Expensive";
         BufferedWriter fileWriter;
         BufferedWriter fileAux;
         BufferedReader tmpReader = new BufferedReader(new FileReader("TMP"));
@@ -102,10 +174,10 @@ public class FileManager {
             fileAux = new BufferedWriter(new FileWriter(expensivePath, true));
             while(line != null){
                 lineFragments = line.split(" ");
-                if(Float.parseFloat(lineFragments[1]) > 100){
-                    fileAux.write(line);
+                if(Float.parseFloat(lineFragments[2]) > 100){
+                    fileAux.write(line); fileAux.newLine();
                 }else{
-                    fileWriter.write(line);
+                    fileWriter.write(line); fileWriter.newLine();
                 } // end if
                 line = tmpReader.readLine();
             } // end while
@@ -115,10 +187,10 @@ public class FileManager {
             fileAux = new BufferedWriter(new FileWriter("Cheap", true));
             while(line != null){
                 lineFragments = line.split(" ");
-                if(Float.parseFloat(lineFragments[1]) <= 100){
-                    fileAux.write(line);
+                if(Float.parseFloat(lineFragments[2]) <= 100){
+                    fileAux.write(line); fileAux.newLine();
                 }else{
-                    fileWriter.write(line);
+                    fileWriter.write(line); fileWriter.newLine();
                 } // end if
                 line = tmpReader.readLine();
             } // end while
@@ -135,10 +207,10 @@ public class FileManager {
     private static boolean WriteValid(String input){
         try {
             String[] inputFragments = input.split(" ");                        
-            if (inputFragments.length != 2){
+            if (inputFragments.length != 3){
                 System.err.println("Input invalid"); return false;                        
             }             
-            Float.parseFloat(inputFragments[1]);
+            Float.parseFloat(inputFragments[2]);
             return true;
         } catch (Exception e) {
             System.err.println(e);
@@ -149,9 +221,14 @@ public class FileManager {
     private static boolean ComandInput(String comand){
         try {
             String[] inputFragments = comand.split(" ");
-            boolean len = (inputFragments.length >= 2 && inputFragments.length <=3 ) ? true : false;
-            boolean com = (inputFragments[0].equalsIgnoreCase("search") || inputFragments[0].equalsIgnoreCase("modify")) ? true:false;
-            if(len && com) return true;
+            
+            boolean len = (inputFragments.length >= 2 && inputFragments.length <=4 ) ? true : false;
+            boolean command = ( inputFragments[0].equalsIgnoreCase("search") || 
+                                inputFragments[0].equalsIgnoreCase("modify") ||
+                                inputFragments[0].equalsIgnoreCase("sell") ||
+                                inputFragments[0].equalsIgnoreCase("client") ) ? true:false;
+            System.out.println("LenF: " + len + " commandF: " + command);
+            if(len && command) return true;
             return false;
         } catch (Exception e) {
             System.err.println(e);
@@ -159,26 +236,27 @@ public class FileManager {
         }
     }
     
-    private static BufferedWriter binding(BufferedWriter writer, String path) throws IOException{
-        System.out.println("    Debug: Before close");
-        writer.close();
-        System.out.println("    Debug: before return new buffered");
-        return new BufferedWriter(new FileWriter(path, true));        
+    private static BufferedWriter binding(BufferedWriter writer, String path) throws IOException{        
+        writer.close();        
+        writer = new BufferedWriter(new FileWriter(path, true));        
+        return writer;
     }
     
-    public static void main(String[] args) throws IOException{
-        String expensivePath = "\\\\PC3-PC\\Users\\Public\\Files\\Expensive";
+    public static void main(String[] args) throws IOException{        
         BufferedWriter stockWriter = new BufferedWriter(new FileWriter("Stock", true));
-        BufferedWriter cheapWriter = new BufferedWriter(new FileWriter("Cheap", true));
-        //BufferedWriter expensiveWriter = new BufferedWriter(new FileWriter("Expensive", true));
+        BufferedWriter cheapWriter = new BufferedWriter(new FileWriter("Cheap", true));        
         BufferedWriter expensiveWriter = new BufferedWriter(new FileWriter(expensivePath, true));
+        //BufferedWriter expensiveWriter = new BufferedWriter(new FileWriter("Expensive", true));
+        
         Scanner scn = new Scanner(System.in);     
         String input = scn.nextLine();
         String aux = "";
         String comand;
         String article;
+        String clientName;
         String[] output;
         float howMuch = 100;
+        float chantity;
         float price;
         
         
@@ -188,13 +266,21 @@ public class FileManager {
                 output = input.split(" ");
                 comand = output[0];
                 article = output[1];
-                price = Float.parseFloat((output.length == 3 ? output[2]:"0"));
+                price = Float.parseFloat(((output.length == 3 && !comand.equalsIgnoreCase("Client"))  ? output[2]:"0")); 
+                clientName = comand.equalsIgnoreCase("Client") || comand.equalsIgnoreCase("sell") ? output[2]:null;
+                chantity = Float.parseFloat( comand.equalsIgnoreCase("sell") ? output[3]:"0");
                 
                 if(comand.equalsIgnoreCase("search")){
                     search(article);
                 }
                 if(comand.equalsIgnoreCase("modify")){
                     modify(article, price);
+                }
+                if(comand.equalsIgnoreCase("client")){
+                    addClient(article, clientName); // (String Clave, String NombreCliente)
+                }
+                if(comand.equalsIgnoreCase("sell")){
+                    sell(article, clientName, chantity ); // (String Clave, String NombreCliente, Float CantidadVendida)
                 }
             }else
             if(WriteValid(input) && !input.equals(aux)){                
@@ -204,16 +290,14 @@ public class FileManager {
                     
                     output = input.split(" ");
                     //article = output[0];
-                    price = Float.parseFloat(output[1]);
+                    price = Float.parseFloat(output[2]);
                     
                     if(price <= howMuch){
                         cheapWriter.write(input); cheapWriter.newLine();
                         cheapWriter = binding(cheapWriter, "Cheap");
                         System.out.println("Write in Cheap: " + input);
-                    }else{
-                        System.out.println("Debug: Before write");
-                        expensiveWriter.write(input); expensiveWriter.newLine();
-                        System.out.println("Debug: Before binding");
+                    }else{                        
+                        expensiveWriter.write(input); expensiveWriter.newLine();                        
                         expensiveWriter.close();
                         expensiveWriter = new BufferedWriter(new FileWriter(expensivePath, true));
                         //expensiveWriter = binding(expensiveWriter, expensivePath);
