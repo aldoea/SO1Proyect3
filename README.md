@@ -12,21 +12,21 @@ The cheap file is local storage and the expensive file is storage in another com
 The path for the epensive file is declared in the  var "String expensivePath".
 
 ## This program does:
-  Write expensive file with items
-  Write cheap file with items
-  Write stock file with all items
-  Write client file with clients
-  Write TMP for modifications
-  Write sells file with sells
+  ..Write expensive file with items
+  ..Write cheap file with items
+  ..Write stock file with all items
+  ..Write client file with clients
+  ..Write TMP for modifications
+  ..Write sells file with sells
   
 ## Commands:
-  Write items:
+  ..Write items:
     <itemId> <itemName> <itemPrice> If the price is lower or equal to 100 it will be a cheap item and then it will be in cheap file
-  Write clients:
+  ..Write clients:
     client <clientId> <clientName>
-  Write sells:
+  ..Write sells:
     sell <clientId> <productId> <chantity> If the client or the product don't exist the functión won't create a sell.
-  Modify prices:
+  ..Modify prices:
     modify <productName> <newPrice>    
   
 
